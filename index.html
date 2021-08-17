@@ -15,20 +15,143 @@
 					<h3>Max Bruckner</h3>
 				</section>
 				<section>
+					<section>
+						<h2>What is a trait?</h2>
+					</section>
+					<section>
+						<h2>What is a trait?</h2>
+						<ul>
+							<li>Interface?</li>
+							<li>Type class?</li>
+							<li>Collection of methods?</li>
+							<li>Shared behavior</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Example</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Shout {
+									fn shout();
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						Traits are implemented from outside of the type itself. <em>(attached to it)</em>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								struct Dog;
+
+								impl Shout for Dog {
+									fn shout() {
+										println!("Whoof!");
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						Traits can have default implementations.
+
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Shout {
+									fn shout() {
+										println!("The sound of silence!");
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						Traits can be implemented on <b>any</b> type.
+
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl Shout for i32 {
+									fn shout() {
+										println!("Aren't numbers silent?")
+									}
+								}
+							</script>
+						</code></pre>
+						<p class="fragment">Yes, even primitive types</p>
+						<p class="fragment">Most notably: <b>Types you didn't define yourself</b></p>
+					</section>
+					<section>
+						Traits can even be implemented on generic types.
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Identity {
+									fn identity(self) -> Self;
+								}
+							</script>
+						</code></pre>
+
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl<T> Identity for T {
+									fn identity(self) -> T {
+										self
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Limits</h2>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl ToString for i32 {
+									...
+								}
+							</script>
+						</code></pre>
+						FIXME: Actual orphan rule error message
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								|
+								1 | impl ToString for i32 {
+								| ^^^^^^^^^^^^^^^^^^^^^
+								|
+								= note: conflicting implementation in crate `alloc`:
+										- impl<T> ToString for T
+											where T: std::fmt::Display, T: ?Sized;
+								}
+							</script>
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>Orphan rule¹</h2>
+						<p>You can implement</p>
+						<p><ul>
+							<li class="fragment"><em>Local</em> traits on any type</li>
+							<li class="fragment"><em>Foreign</em> traits on <em>local</em> types</li>
+						</ul></p>
+						<p class="fragment">This prevents ambiguous implementations.</p>
+						<p><small>¹simplified, see <a href="https://doc.rust-lang.org/stable/reference/items/implementations.html?highlight=orphan%20rule#orphan-rules">the reference</a></small></p>
+						TODO: Overlapping implementations
+					</section>
+				</section>
+				<section>
 					<ul>
 						<li>target audience?</li>
 						<li>What is a trait</li>
+						<li>trait method resolution</li>
 						<li>marker traits</li>
-						<li>traits can be attached from the outside</li>
-						<li>orphan rule</li>
 						<li>trait bounds</li>
 						<li>existential types</li>
 						<li>generic traits</li>
 						<li>associated types</li>
+						<li>associated consts</li>
 						<li>generic associated types</li>
 						<li>monomorphisation</li>
 						<li>trait objects</li>
+						<li>object safety</li>
 						<li>fat pointers</li>
+						<li>conditional methods</li>
 						<li>vtable</li>
 						<li>static vs. dynamic dispatch</li>
 						<li>impl trait</li>
