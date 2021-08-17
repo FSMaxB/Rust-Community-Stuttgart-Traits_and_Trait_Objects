@@ -1,12 +1,14 @@
 {
-  "name": "rust-community-stuttgart-traits-and-trait-objects",
-  "version": "0.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview"
-  },
-  "devDependencies": {
-    "vite": "^2.4.4"
-  }
+	"name": "rust-community-stuttgart-traits-and-trait-objects",
+	"version": "0.0.0",
+	"private": "true",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"serve": "vite preview"
+	},
+	"devDependencies": {
+		"reveal.js": "4.1.0",
+		"vite": "^2.0.0"
+	}
 }

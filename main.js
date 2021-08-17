@@ -1,6 +1,6 @@
-import './style.css'
+import 'reveal.js/dist/reveal.css';
+import 'reveal.js/dist/theme/black.css';
+import Reveal from "reveal.js";
 
-document.querySelector('#app').innerHTML = `
-  <h1>Hello Vite!</h1>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
-`
+const deck = new Reveal();
+deck.initialize({hash: true, slideNumber: true})
