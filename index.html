@@ -166,12 +166,132 @@
 					</section>
 				</section>
 				<section>
+					<section>
+						<h2>Generics</h2>
+					</section>
+					<section>
+						<h2>Trait bounds</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print<T>(value: T)
+								where
+									T: ToString,
+								{
+									println!("{}", value.to_string());
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								pub fn main() {
+									print(1);
+									print("hello");
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Trait bounds</h2>
+						<ul>
+							<li class="fragment">Similar to Generic Bounds in Java, TypeScript etc.
+								<ul class="fragment">
+									<li>Only properties of the traits can be used</li>
+								</ul>
+							</li>
+							<li class="fragment">Other than e.g. C++ concepts
+								<ul>
+									<li>Only constrains callers, but duck typing still possible</li>
+								</ul>
+							</li>
+						</ul>
+						<em class="fragment"><a href="https://www.youtube.com/watch?v=E-2y1qHQvTg">Conor Hoekstra - Concepts vs Typeclasses vs Traits vs Protocols</a></em>
+					</section>
+					<section>
+						<h2>Syntactic sugar</h2>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print<T: ToString>(value: T) {
+									println!("{}", value.to_string());
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print(value: impl ToString) {
+									println!("{}", value.to_string());
+								}
+							</script>
+						</code></pre>
+						<p><em class="fragment"><code>impl</code> is <a href="https://doc.rust-lang.org/stable/reference/types/impl-trait.html?highlight=impl%20trait#anonymous-type-parameters">not exactly</a> equivalent though</em></p>
+						<p><em class="fragment">Also <code>impl</code> only works in functions and methods</em></p>
+					</section>
+					<section>
+						<h2>Abstract return types</h2>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn make_printer() -> impl Fn(&str) {
+									|text| println!("{}", text)
+								}
+							</script>
+						</code></pre>
+						<p class="fragment"><em>Supports returning unnameable types (like closures)</em></p>
+					</section>
+					<section>
+						<h2>Abstract return types</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn make_printer(stdout: bool) -> impl Fn(&str) {
+									if stdout {
+										|text| println!("{}", text)
+									} else {
+										|text| eprintln!("{}", text)
+									}
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								error: implementation of `FnOnce` is not general enough
+								--> src/main.rs:1:34
+								|
+								1 | fn make_printer(stdout: bool) -> impl Fn(&str) {
+								|                                  ^^^^^^^^^^^^^ implementation of `FnOnce` is not general enough
+								|
+								= note: `fn(&'2 str)` must implement `FnOnce<(&'1 str,)>`, for any lifetime `'1`...
+								= note: ...but it actually implements `FnOnce<(&'2 str,)>`, for some specific lifetime `'2`
+							</script>
+						</code></pre>
+						<p class="fragment">Every path needs to return the same type.</p>
+					</section>
+					<section>
+						<h2>Abstract return types</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn make_printer(stdout: bool) -> impl Fn(impl ToString) {
+									|text| println!("{}", text.to_string())
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								error[E0666]: nested `impl Trait` is not allowed
+								--> src/main.rs:1:30
+								|
+								1 | fn make_printer() -> impl Fn(impl ToString) {
+								|                      --------^^^^^^^^^^^^^-
+								|                      |       |
+								|                      |       nested `impl Trait` here
+								|                      outer `impl Trait`
+							</script>
+						</code></pre>
+						<p class="fragment">Only <b>concrete</b> types are supported</p>
+					</section>
+				</section>
+				<section>
 					<ul>
 						<li>target audience?</li>
-						<li>What is a trait</li>
 						<li>trait method resolution</li>
 						<li>marker traits</li>
-						<li>trait bounds</li>
 						<li>existential types</li>
 						<li>generic traits</li>
 						<li>associated types</li>
@@ -184,7 +304,6 @@
 						<li>conditional methods</li>
 						<li>vtable</li>
 						<li>static vs. dynamic dispatch</li>
-						<li>impl trait</li>
 					</ul>
 				</section>
 			</div>
