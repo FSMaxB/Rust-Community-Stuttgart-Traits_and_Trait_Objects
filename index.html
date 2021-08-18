@@ -411,6 +411,68 @@
 					</section>
 				</section>
 				<section>
+					<section>
+						<h2>Trait Objects</h2>
+					</section>
+					<section>
+						<h2>So far</h2>
+						<ul>
+							<li class="fragment">Monomorphisation
+								<ul>
+									<li>static dispatch</li>
+									<li>copied implementation for every type</li>
+								</ul>
+							</li>
+							<li class="fragment">good optimization opportunities</li>
+							<li class="fragment">Can't return multiple types</li>
+							<li class="fragment">Can't nest <code>impl</code></li>
+						</ul>
+					</section>
+					<section>
+						<h2>With trait objects</h2>
+						<ul>
+							<li class="fragment">dynamic dispatch</li>
+							<li class="fragment">stops generics propagation
+								<ul>
+									<li class="fragment">faster compile times</li>
+								</ul>
+							</li>
+							<li class="fragment">smaller binaries</li>
+							<li class="fragment">returning different trait implementations</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Trait Objects</h2>
+						<p>Works like in most popular languages</p>
+						<ul>
+							<li class="fragment"><b>One</b> dynamic implementation for every type</li>
+							<li class="fragment">Java Interfaces</li>
+							<li class="fragment">(virtual) inheritance</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Owned</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print(value: Box<dyn ToString>) {
+									println!("{}", value.to_string());
+								}
+
+								pub fn main() {
+									print(Box::new(1));
+									print(Box::new("hello"));
+								}
+							</script>
+						</code></pre>
+						<p class="fragment">Also works with <code>Rc</code>, <code>Arc</code>, etc.</p>
+						<p class="fragment"><em>Always requires heap allocation!</em></p>
+					</section>
+					<section>
+						<h2>Borrowed</h2>
+						TODO
+					</section>
+				</section>
+				<section>
 					<ul>
 						<li>target audience?</li>
 						<li>trait method resolution</li>
