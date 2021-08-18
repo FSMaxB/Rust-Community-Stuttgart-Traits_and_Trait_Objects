@@ -103,22 +103,23 @@
 						<h2>Limits</h2>
 						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
 							<script type="text/template">
-								impl ToString for i32 {
+								impl std::fmt::Display for () {
 									...
 								}
 							</script>
 						</code></pre>
-						FIXME: Actual orphan rule error message
-						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers>
 							<script type="text/template">
+								error[E0117]: only traits defined in the current crate can be implemented for arbitrary types
+								--> src/main.rs:1:1
 								|
-								1 | impl ToString for i32 {
-								| ^^^^^^^^^^^^^^^^^^^^^
+								1 | impl std::fmt::Display for () {
+								| ^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+								| |                          |
+								| |                          this is not defined in the current crate because tuples are always foreign
+								| impl doesn't use only types from inside the current crate
 								|
-								= note: conflicting implementation in crate `alloc`:
-										- impl<T> ToString for T
-											where T: std::fmt::Display, T: ?Sized;
-								}
+								= note: define and implement a trait or new type instead
 							</script>
 						</code></pre>
 					</section>
@@ -132,7 +133,36 @@
 						</ul></p>
 						<p class="fragment">This prevents ambiguous implementations.</p>
 						<p><small>¹simplified, see <a href="https://doc.rust-lang.org/stable/reference/items/implementations.html?highlight=orphan%20rule#orphan-rules">the reference</a></small></p>
-						TODO: Overlapping implementations
+					</section>
+					<section>
+						<h2>Overlap</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+									impl<T> Identity for T {
+										fn identity(self) -> Self {
+											self
+										}
+									}
+
+									impl Identity for i32 {
+										fn identity(self) -> Self {
+											self
+										}
+									}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers>
+							<script type="text/template">
+							error[E0119]: conflicting implementations of trait `Identity` for type `i32`
+							--> src/main.rs:7:1
+							|
+							1 | impl<T> Identity for T {
+								| ---------------------- first implementation here
+							...
+							7 | impl Identity for i32 {
+								| ^^^^^^^^^^^^^^^^^^^^^ conflicting implementation for `i32`
+							</script>
+						</code></pre>
 					</section>
 				</section>
 				<section>
