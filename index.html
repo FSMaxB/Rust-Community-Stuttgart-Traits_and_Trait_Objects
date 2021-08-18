@@ -330,6 +330,87 @@
 					</section>
 				</section>
 				<section>
+					<section>
+						<h2>Small intermezzo</h2>
+					</section>
+					<section>
+						<h2>Generic types</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								struct Wrapper<Wrapped> {
+									wrapped: Wrapped,
+								}
+							</script>
+						</code></pre>
+						<p class="fragment">You could constrain the type definition</p>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								struct Wrapper<Wrapped: Default> {
+									wrapped: Wrapped,
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Generic types</h2>
+						<p>But you might want to only constrain implementations</p>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl<Wrapped: Default> Default for Wrapper<Wrapped> {
+									fn default() -> Self {
+										Self {
+											wrapped: Wrapped::default(),
+										}
+									}
+								}
+							</script>
+						</code></pre>
+						<p class="fragment">This is a conditional trait implementation.</p>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								// useful for e.g.
+								let value: Arc<Mutex<MyType> = Arc::default();
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Generic Types</h2>
+						<p>This also works for regular <code>impl</code> blocks</p>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl<Wrapped: ToString> Wrapper<Wrapped> {
+									fn print(&self) {
+										println!("Wrapper({})", self.wrapped.to_string());
+									}
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								Wrapper { wrapped: () }.print();
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								error[E0599]: the method `print` exists for struct `Wrapper<()>`, but its trait bounds were not satisfied
+								--> src/main.rs:12:26
+								|
+								1  | struct Wrapper<Wrapped> {
+									 | ----------------------- method `print` not found for this
+								...
+								12 |     Wrapper { wrapped: () }.print();
+									 |                             ^^^^^ method cannot be called on `Wrapper<()>` due to unsatisfied trait bounds
+									 |
+									 = note: the following trait bounds were not satisfied:
+													 `(): ToString`
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>End of Intermezzo</h2>
+					</section>
+				</section>
+				<section>
 					<ul>
 						<li>target audience?</li>
 						<li>trait method resolution</li>
@@ -341,9 +422,9 @@
 						<li>trait objects</li>
 						<li>object safety</li>
 						<li>fat pointers</li>
-						<li>conditional methods</li>
 						<li>vtable</li>
 						<li>static vs. dynamic dispatch</li>
+						<li>deriving traits</li>
 						<li>More examples!!!!!!</li>
 					</ul>
 				</section>
