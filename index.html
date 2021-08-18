@@ -286,24 +286,65 @@
 						</code></pre>
 						<p class="fragment">Only <b>concrete</b> types are supported</p>
 					</section>
+					<section>
+						<p>Both of these problems can be fixed using trait objects.</p>
+						<p>More on that later.</p>
+					</section>
+					<section>
+						<p>How is code generated from generics?</p>
+					</section>
+					<section>
+						<h2>Monomorphisation</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print(value: impl ToString) {
+									println!("{}", value.to_string());
+								}
+
+								pub fn main() {
+									print(1);
+									print("hello");
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Monomorphisation</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print_i32(value: i32) {
+									println!("{}", value.to_string());
+								}
+
+								fn print_str(value: &str) {
+									println!("{}", value.to_string());
+								}
+
+								pub fn main() {
+									print_i32(1);
+									print_str("hello");
+								}
+							</script>
+						</code></pre>
+						<p>Monomorphisation = Polymorphic -> Monomorphic</p>
+					</section>
 				</section>
 				<section>
 					<ul>
 						<li>target audience?</li>
 						<li>trait method resolution</li>
 						<li>marker traits</li>
-						<li>existential types</li>
 						<li>generic traits</li>
 						<li>associated types</li>
 						<li>associated consts</li>
 						<li>generic associated types</li>
-						<li>monomorphisation</li>
 						<li>trait objects</li>
 						<li>object safety</li>
 						<li>fat pointers</li>
 						<li>conditional methods</li>
 						<li>vtable</li>
 						<li>static vs. dynamic dispatch</li>
+						<li>More examples!!!!!!</li>
 					</ul>
 				</section>
 			</div>
