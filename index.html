@@ -111,6 +111,30 @@
 						</code></pre>
 					</section>
 					<section>
+						<h2>Super traits</h2>
+						<p>Traits can require other traits (similar to inheritance)</p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Shout: ToString {
+									fn shout(&self) {
+										println!("Shouting: {}!", self.to_string());
+									}
+								}
+							</script>
+						</code></pre>
+						<div class="fragment">
+							<p>For multiple traits, use <code>+</code>, e.g.: </p>
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Shout: Clone + ToString {
+									...
+								}
+							</script>
+						</code></pre>
+						</div>
+
+					</section>
+					<section>
 						Traits can be implemented on <b>any</b> type.
 
 						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
@@ -337,6 +361,52 @@
 						<p>More on that later.</p>
 					</section>
 					<section>
+						<h2>Marker traits</h2>
+						<p>Traits without methods etc. just for use in bounds</p>
+						<div class="fragment">
+							<p>Example:</p>
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+								<script type="text/template">
+									unsafe trait Send {}
+								</script>
+							</code></pre>
+							<p><em>Marks types that can be transfered across thread boundaries.</em></p>
+						</div>
+					</section>
+					<section>
+						<h2>Marker traits</h2>
+						<pre>std::thread::spawn</pre>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+								<script type="text/template">
+									pub fn spawn<T, T>(f: F) -> JoinHandle<T>
+									where
+										F: FnOnce() -> T,
+										F: Send + 'static,
+										T: Send + 'static,
+								</script>
+							</code></pre>
+						<p class="fragment"><code>Send</code> bound ensures no thread unsafe type can be passed to another thread.</p>
+						<div class="fragment">
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+									<script type="text/template">
+										let rc = Rc::new(1);
+										std::thread::spawn(|| println!("{}", rc));
+									</script>
+								</code></pre>
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+									<script type="text/template">
+										error[E0277]: `Rc<i32>` cannot be shared between threads safely
+											…
+									</script>
+								</code></pre>
+						</div>
+					</section>
+					<section>
+						<h2>Auto traits</h2>
+						<p><code>Send</code> is also an auto trait, it automatically gets implemented by the compiler</p>
+						<p class="fragment">Others: <code>Sync</code>, <code>Unpin</code>, <code>UnwindSafe</code>, <code>RefUnwindSafe</code></p>
+					</section>
+					<section>
 						<p>How is code generated from generics?</p>
 					</section>
 					<section>
@@ -465,6 +535,48 @@
 										println!("{:?}", self);
 									}
 								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Deriving traits</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								#[derive(Default, Clone)]
+								struct Wrapper<Wrapped> {
+									wrapped: Wrapped,
+								}
+							</script>
+						</code></pre>
+						<p>Automatically adds implementation for some builtin traits if all members also implement it.</p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								let wrapped_number = Wrapper::<i32>::default();
+								let clone = wrapped_number.clone();
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Deriving traits</h2>
+						<p>Using procedural macros, can be implemented yourself or by libraries.</p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								use serde::{Serialize, Deserialize};
+
+								#[derive(Serialize, Deserialize)]
+								struct Point {
+									x: f64,
+									y: f64,
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+									let json = r#"{"x":1.0,"y":2.0}"#;
+									let point = serde_json::from_str(json).unwrap();
+									assert_eq!(Point { x: 1.0, y: 2.0 }, point);
+									let printed_json = serde_json::to_string(&point).unwrap();
+									assert_eq!(json, printed_json);
 							</script>
 						</code></pre>
 					</section>
@@ -803,14 +915,11 @@
 				<section>
 					<ul>
 						<li>target audience?</li>
-						<li>super traits</li>
 						<li>trait method resolution</li>
-						<li>marker traits</li>
 						<li>generic traits</li>
 						<li>associated types</li>
+						<li>operator overloading</li>
 						<li>generic associated types</li>
-						<li>deriving traits</li>
-						<li>More examples!!!!!!</li>
 					</ul>
 				</section>
 			</div>
