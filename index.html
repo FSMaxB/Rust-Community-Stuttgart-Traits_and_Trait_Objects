@@ -939,9 +939,135 @@
 					</section>
 				</section>
 				<section>
+					<section>
+						<h2>Generic traits</h2>
+						<p class="fragment"><em>Where the power lies!</em></p>
+					</section>
+					<section>
+						<h3>The <code>From</code> trait</h3>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								pub trait From<T> {
+									fn from(T) -> Self;
+								}
+							</script>
+						</code></pre>
+						<p>Can be implemented for every <code>T</code> separately</p>
+					</section>
+					<section>
+						<h3>Example</h3>
+						<p>Our <code>Duration</code> from earlier, but not as trait</p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								// foreign types
+								struct Days(u16);
+								struct Seconds(u64);
+								// std::time::Duration;
+
+								// our type
+								struct Duration {
+									days: u64,
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h3>Example</h3>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl From<Days> for Duration {
+									fn from(days: Days) -> Duration {
+										Self { days: days.0 as u64 }
+									}
+								}
+							</script>
+						</code></pre>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl From<Seconds> for Duration {
+									fn from(seconds: Seconds) -> Duration {
+										Self { days: seconds.0 / (24 * 3600)}
+									}
+								}
+							</script>
+						</code></pre>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl From<std::time::Duration> for Duration {
+									fn from(duration: std::time::Duration) -> Duration {
+										Self { days: duration.as_secs() / (24 * 3600)}
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h3>Implement one, get one free</h3>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								pub trait Into<T> {
+									fn into(self) -> T;
+								}
+							</script>
+						</code></pre>
+						<p class="fragment">🧙 <em>Let me implement this for you!</em></p>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl<T, U> Into<U> for T
+								where
+									U: From<T>
+								{
+									fn into(self) -> U {
+										U::from(self)
+									}
+								}
+							</script>
+						</code></pre>
+						<p class="fragment">All of our <code>From</code> implementations just got <code>Into</code> for free</p>
+					</section>
+					<section>
+						<h3>Back to our example</h3>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print_days(duration: impl Into<Duration>) {
+									let duration = duration.into();
+									println!("{} day(s)", duration.days);
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								print_days(Days(10));
+								print_days(Seconds(3_628_800));
+								print_days(std::time::Duration::from_secs(3_628_800));
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<em>Maybe we don't want all that monomorphization</em>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print_days(duration: Duration) {
+									println!("{} day(s)", duration.days);
+								}
+							</script>
+						</code></pre>
+						<div class="fragment">
+							<p><em>Voila</em></p>
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								print_days(Days(10).into());
+								print_days(Seconds(3_628_800).into());
+								print_days(std::time::Duration::from_secs(3_628_800).into());
+							</script>
+						</code></pre>
+						</div>
+						<p class="fragment">This makes converting between types quite convenient.</p>
+					</section>
+				</section>
+				<section>
 					<ul>
 						<li>target audience?</li>
-						<li>generic traits</li>
 						<li>associated types</li>
 						<li>operator overloading</li>
 						<li>generic associated types</li>
