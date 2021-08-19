@@ -234,6 +234,32 @@
 							</script>
 						</code></pre>
 					</section>
+					<section>
+						<h2>How can I use my trait methods</h2>
+						<div class="fragment">
+							<h3>Static trait methods</h3>
+							<pre><code data-trim data-noescape data-line-numbers>
+							<script type="text/template">
+								use crate::Shout; // import required
+
+								Dog::shout();
+								<Dog as Shout>::shout();
+							</script>
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<h3>Methods with <code>self</code></h3>
+							<pre><code data-trim data-noescape data-line-numbers>
+							<script type="text/template">
+								use std::string::ToString; // import required (in general)
+
+								1.to_string();
+								i32::to_string(&1);
+								<i32 as ToString>::to_string(&1);
+							</script>
+							</code></pre>
+						</div>
+					</section>
 				</section>
 				<section>
 					<section>
@@ -915,7 +941,6 @@
 				<section>
 					<ul>
 						<li>target audience?</li>
-						<li>trait method resolution</li>
 						<li>generic traits</li>
 						<li>associated types</li>
 						<li>operator overloading</li>
