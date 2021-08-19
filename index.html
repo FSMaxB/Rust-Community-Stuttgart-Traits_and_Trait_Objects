@@ -551,18 +551,203 @@
 							<li>super trait vtable references</li>
 						</ul>
 					</section>
+					<section>
+						<h2>Object Safety</h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn takes_default(value: Box<dyn Default>) {
+									unimplemented!()
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								error[E0038]: the trait `Default` cannot be made into an object
+								--> src/main.rs:1:25
+								|
+								1 | fn takes_default(value: Box<dyn Default>) {
+									|                         ^^^^^^^^^^^^^^^^ `Default` cannot be made into an object
+									|
+									= note: the trait cannot be made into an object because it requires `Self: Sized`
+									= note: for a trait to be "object safe" it needs to allow building a vtable to allow the call to be resolvable dynamically; for more information visit <https://doc.rust-lang.org/reference/items/traits.html#object-safety>
+							</script>
+						</code></pre>
+						<p class="fragment">Not all traits can be used as trait objects.</p>
+					</section>
+					<section>
+						<h2><a href="https://doc.rust-lang.org/reference/items/traits.html#object-safety">Object safety</a></h2>
+						<ol>
+							<li class="fragment">supertraits must be object safe</li>
+							<li class="fragment">must not require <code>Sized</code></li>
+							<li class="fragment">must not have associated constants</li>
+							<li class="fragment">methods must not be generic</li>
+							<li class="fragment">methods must not use the <code>self</code> receiver
+								<ul>
+									<li><code>&self</code>, <code>Box&lt;Self&gt;</code> etc. are okay</li>
+								</ul>
+							</li>
+							<li class="fragment">methods must have a receiver</li>
+							<li class="fragment">methods must not use the <code>Self</code> type</li>
+							<li class="fragment">methods must not be constrained by <code>where Self: Sized</code></li>
+						</ol>
+					</section>
+					<section>
+						<h2>But why?</h2>
+					</section>
+					<section>
+						<ol start="1">
+							<li>supertraits must be object safe</li>
+						</ol>
+						<p class="fragment"><em>a trait has all properties of a supertrait</em></p>
+					</section>
+					<section>
+						<ol start="2">
+							<li>must not require <code>Sized</code></li>
+						</ol>
+						<p class="fragment"><em>every implementation could have a different size</em></p>
+						<p class="fragment">Trait objects are DSTs (dynamically sized types)</p>
+					</section>
+					<section>
+						<ol start="3">
+							<li>must not have associated constants</li>
+						</ol>
+					</section>
+					<section>
+						<h2>Associated constants</h2>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait LimitedNumber {
+									const MIN_VALUE: usize;
+									const MAX_VALUE: usize;
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl LimitedNumber for u8 {
+									const MIN_VALUE: usize = u8::MIN as usize;
+									const MAX_VALUE: usize = u8::MAX as usize;
+								}
+
+								impl LimitedNumber for u64 {
+									const MIN_VALUE: usize = u64::MIN as usize;
+									const MAX_VALUE: usize = u64::MAX as usize;
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								println!("u8 min: {}", u8::MIN_VALUE);
+								println!("u64 max: {}", u64::MAX_VALUE);
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<ol start="3">
+							<li>must not have associated constants</li>
+						</ol>
+						<p class="fragment"><em>every implementation could have a different constant</em></p>
+						<p class="fragment"><em>therefore not available at compile time</em></p>
+					</section>
+					<section>
+						<ol start="4">
+							<li>methods must not be generic</li>
+						</ol>
+						<p class="fragment"><em>generic methods have infinite implementations</em></p>
+						<p class="fragment"><em>the vtable can only store one</em></p>
+					</section>
+					<section>
+						<ol start="5">
+							<li class="fragment">methods must not use the <code>self</code> receiver
+								<ul>
+									<li><code>&self</code>, <code>Box&lt;Self&gt;</code> etc. are okay</li>
+								</ul>
+							</li>
+						</ol>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Foo {
+									fn takes_self(self);
+								}
+							</script>
+						</code></pre>
+						<div class="fragment">
+							<p><em>hidden <code>Sized</code> bound</em></p>
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Foo {
+									fn takes_self(self: Self)
+									where
+										Self: Sized;
+								}
+							</script>
+						</code></pre>
+						</div>
+						<p class="fragment"><em>Method needs to allocate stack space for <code>self</code></em></p>
+						<p class="fragment">the other receivers are just references, therefore fixed size</p>
+					</section>
+					<section>
+						<ol start="6">
+							<li>methods must have a receiver</li>
+						</ol>
+						<p class="fragment"><em>methods without receiver don't have a reference to <code>self</code></em></p>
+						<div class="fragment">
+							<p><em>therefore no access to a vtable</em></p>
+							<p><em>(and the methods therein)</em></p>
+						</div>
+					</section>
+					<section>
+						<ol start="7">
+							<li>methods must not use the <code>Self</code> type</li>
+							<li>methods must not be constrained by <code>where Self: Sized</code></li>
+						</ol>
+						<p class="fragment"><em>Same hidden <code>Sized</code> bound as with <code>self</code> receiver</em></p>
+					</section>
+					<section>
+						<h2>Is my trait object safe?</h2>
+						<p class="fragment">Check with the <code>assert_obj_safe</code> macro from the <a href="https://docs.rs/static_assertions">static_assertions</a> crate</p>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								assert_obj_safe!(Default);
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								error[E0038]: the trait `Default` cannot be made into an object
+								--> src/main.rs:2:1
+								|
+								2 | assert_obj_safe!(Default);
+								| ^^^^^^^^^^^^^^^^^^^^^^^^^^ `Default` cannot be made into an object
+								|
+								= note: the trait cannot be made into an object because it requires `Self: Sized`
+								= note: for a trait to be "object safe" it needs to allow building a vtable to allow the call to be resolvable dynamically; for more information visit <https://doc.rust-lang.org/reference/items/traits.html#object-safety>
+								= note: this error originates in the macro `assert_obj_safe` (in Nightly builds, run with -Z macro-backtrace for more info)
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>You choose</h2>
+						<ul>
+							<li class="fragment"><em>You can choose between static and dynamic dispatch for the same type</em></li>
+							<li class="fragment">Examples from other languages
+								<ul>
+									<li class="fragment">Java, Swift etc.: Always dynamic</li>
+									<li class="fragment">C++: Depends on type (<code>virtual</code> methods)</li>
+								</ul>
+							</li>
+						</ul>
+					</section>
 				</section>
 				<section>
 					<ul>
 						<li>target audience?</li>
+						<li>More on the concept of tacking on traits</li>
 						<li>trait method resolution</li>
 						<li>marker traits</li>
 						<li>generic traits</li>
 						<li>associated types</li>
-						<li>associated consts</li>
+						<li>conditional trait methods</li>
 						<li>generic associated types</li>
-						<li>trait objects</li>
-						<li>object safety</li>
 						<li>deriving traits</li>
 						<li>More examples!!!!!!</li>
 					</ul>
