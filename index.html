@@ -52,6 +52,52 @@
 						</code></pre>
 					</section>
 					<section>
+						<h3>Example</h3>
+						<div class="fragment">
+							<p><em>Duration types from different sources.</em></p>
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								struct Days(u16);
+								struct Seconds(u64);
+								use std::time::Duration;
+							</script>
+						</code></pre>
+						</div>
+						<p class="fragment"><em>You're interested in the number of days.</em></p>
+						<div class="fragment">
+							<p>Traditional solution:</p>
+							<p> Wrapper type that implements an interface</p>
+						</div>
+					</section>
+					<section>
+						<h2>Example</h2>
+						<p>Trait solution:</p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								trait Duration {
+									fn days(&self) -> u64;
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl Duration for Days {
+									fn days(&self: Days) -> u64 { self.0 as u64 }
+								}
+
+								impl Duration for Seconds {
+									fn days(&self: Seconds) -> u64 { self.0 / (24 * 3600) }
+								}
+
+								impl Duration for std::time::Duration {
+									fn days(&self: std::time::Duration) -> u64 {
+										self.as_secs() / (24 * 3600)
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
 						Traits can have default implementations.
 
 						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
@@ -741,7 +787,6 @@
 				<section>
 					<ul>
 						<li>target audience?</li>
-						<li>More on the concept of tacking on traits</li>
 						<li>trait method resolution</li>
 						<li>marker traits</li>
 						<li>generic traits</li>
