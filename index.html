@@ -1066,12 +1066,129 @@
 					</section>
 				</section>
 				<section>
-					<ul>
-						<li>target audience?</li>
-						<li>associated types</li>
-						<li>operator overloading</li>
-						<li>generic associated types</li>
-					</ul>
+					<section>
+						<h2>Associated types</h2>
+					</section>
+					<section>
+						<h3>The <code>Deref</code> trait</h3>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							pub trait Deref {
+								type Target: ?Sized; //special ?Sized
+
+								fn deref(&self) -> &Self::Target;
+							}
+						</code></pre>
+						<p><em>Can only be implemented once for any given type</em></p>
+					</section>
+					<section>
+						<h3>Example: <code>Vec</code></h3>
+						<p><em>(simplified)</em></p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl<T> Deref for Vec<T> {
+									type Target = [T];
+
+									fn deref(&self) -> &[T] {
+										self.as_slice()
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h3><code>Deref</code> vs. <code>AsRef</code></h3>
+						<ul>
+							<li class="fragment"><code>Deref</code> is THE implementation for dereferencing. There can only be one.</li>
+							<li class="fragment"><code>AsRef</code> Can be implemented multiple times to dereference as separate types.
+								<ul>
+									<li>e.g. <code>String</code> is <code>AsRef&lt;[u8]&gt;</code> and <code>AsRef&lt;str&gt;</code></li>
+								</ul>
+							</li>
+						</ul>
+					</section>
+					<section>
+						<h3>The <code>Iterator</code> trait</h3>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								pub trait Iterator {
+									type Item;
+
+									fn next(&mut self) -> Option<Self::Item>;
+									// ... a bunch of default implemented methods
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h3>Operator overloading</h3>
+						<p>Example:</p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								pub trait Add<Rhs = Self> {
+									type Output;
+									fn add(self, rhs: Rhs) -> Self::Output;
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								struct Point {
+									x: f64,
+									y: f64,
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h3>Operator overloading</h3>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl Add for Point {
+									type Output = Point;
+
+									fn add(self, rhs: Self) -> Self::Output {
+										Point {
+											x: self.x + rhs.x,
+											y: self.y + rhs.y,
+										}
+									}
+								}
+							</script>
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								impl Add<f64> for Point {
+									type Output = Point;
+
+									fn add(self, rhs: f64) -> Self::Output {
+										Point {
+											x: self.x + rhs,
+											y: self.y + rhs,
+										}
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h3>Operator Overloading</h3>
+						<pre class="fragment"><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								let a = Point {x: 1.0, y: 2.0};
+								let b = Point {x: 3.0, y: 4.0};
+								assert_eq!(Point {x: 4.0, y: 6.0}, a + b);
+								assert_eq!(Point {x: 43.0, y: 44.0}, a + 42.0);
+							</script>
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<h2>End</h2>
+					<p>Slides</p>
+					<p><a href="https://github.com/FSMaxB/Rust-Community-Stuttgart-Traits_and_Trait_Objects">https://github.com/FSMaxB/Rust-Community-Stuttgart-Traits_and_Trait_Objects</a></p>
+					<p></p>
+					<p>Recording (once ready)</p>
+					<p><a href="https://www.youtube.com/user/OSSMaxB">https://www.youtube.com/user/OSSMaxB</a></p>
 				</section>
 			</div>
 		</div>
