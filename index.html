@@ -439,6 +439,7 @@
 							</li>
 							<li class="fragment">smaller binaries</li>
 							<li class="fragment">returning different trait implementations</li>
+							<li class="fragment">type erasure</li>
 						</ul>
 					</section>
 					<section>
@@ -469,7 +470,86 @@
 					</section>
 					<section>
 						<h2>Borrowed</h2>
-						TODO
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn print(value: &dyn ToString) {
+									println!("{}", value.to_string());
+								}
+
+								pub fn main() {
+									print(&1);
+									print(&"hello");
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Type Erasure</h2>
+						<p>This now works</p>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn make_printer(stdout: bool) -> Box<dyn Fn(&str)> {
+									if stdout {
+										Box::new(|text| println!("{}", text.to_string()))
+									} else {
+										Box::new(|text| eprintln!("{}", text.to_string()))
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>Nested <code>dyn</code></h2>
+						<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+							<script type="text/template">
+								fn make_printer(stdout: bool) -> Box<dyn Fn(&dyn ToString)> {
+									if stdout {
+										Box::new(|text| println!("{}", text.to_string()))
+									} else {
+										Box::new(|text| eprintln!("{}", text.to_string()))
+									}
+								}
+							</script>
+						</code></pre>
+					</section>
+					<section>
+						<h2>What IS a trait object?</h2>
+						<div class="fragment">
+							<p>NOTE: Deprecated <a href="https://doc.rust-lang.org/stable/std/raw/struct.TraitObject.html">std::raw::TraitObject</a>, for demonstration only</p>
+							<pre><code data-trim data-noescape data-line-numbers class="language-rust">
+								<script type="text/template">
+									#[repr(C)]
+									pub struct TraitObject {
+										pub data: *mut (),
+										pub vtable: *mut (),
+									}
+								</script>
+							</code></pre>
+						</div>
+						<ul>
+							<li class="fragment">Data pointer
+								<ul>
+									<li>points to actual value</li>
+									<li>same as normal references</li>
+								</ul>
+							</li>
+							<li class="fragment">VTable pointer
+								<ul>
+									<li>points to metadata about the type</li>
+								</ul>
+							</li>
+						</ul>
+					</section>
+					<section>
+						<h2>VTable</h2>
+						<img src="images/vtable-debugger.png"/>
+						<p><em><a href="https://github.com/rust-lang/rust/blob/f9b95f92c8af07a24a870e5f6117aa5dfcee5f17/compiler/rustc_middle/src/ty/vtable.rs#L8-L22">NOTE: Unstable internals</a></em></p>
+						<ul>
+							<li>size</li>
+							<li>alignment</li>
+							<li>methods</li>
+							<li>super trait vtable references</li>
+						</ul>
 					</section>
 				</section>
 				<section>
@@ -483,9 +563,6 @@
 						<li>generic associated types</li>
 						<li>trait objects</li>
 						<li>object safety</li>
-						<li>fat pointers</li>
-						<li>vtable</li>
-						<li>static vs. dynamic dispatch</li>
 						<li>deriving traits</li>
 						<li>More examples!!!!!!</li>
 					</ul>
